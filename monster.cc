@@ -11,6 +11,10 @@ MonsterOrGroup::MonsterOrGroup(HealthPoints health, AttackPower attackPower) {
 	this->attackPower = attackPower;
 }
 
+std::string MonsterOrGroup::getName() {
+	return std::string("Unnamed");
+}
+
 HealthPoints MonsterOrGroup::getHealth() {
 	return this->health;
 }
@@ -120,6 +124,10 @@ Mummy createMummy(HealthPoints hp, AttackPower ap) {
 }
 
 // TODO
-GroupOfMonsters createGroupOfMonsters(std::vector<Monster> &monsters) {
+GroupOfMonsters createGroupOfMonsters(std::vector<Monster> &monsters, std::allocator<Monster>) {
+	return GroupOfMonsters(monsters);
+}
+
+GroupOfMonsters createGroupOfMonsters(std::vector<Monster, std::allocator<Monster> > monsters) {
 	return GroupOfMonsters(monsters);
 }

@@ -3,13 +3,15 @@
 const BigInt MIN_AGE_ADULT = 18, MAX_AGE_ADULT = 100;
 const BigInt MIN_AGE_TEENAGER = 11, MAX_AGE_TEENAGER = 18;
 
-bool Citizen::isAgeGood(Age) {
-	return false;
+bool Citizen::isAgeGood(Age age) {
+	return (age >= MIN_AGE_TEENAGER && age <= MAX_AGE_ADULT);
 }
 
 Citizen::Citizen(HealthPoints health, Age age) {
 	if (!isAgeGood(age)) {
-		throw "Argument age is wrong";
+		printf("%lld\n", age);
+		puts("ASS2");
+		throw 42;
 	}
 	this->health = health;
 	this->age = age;

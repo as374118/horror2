@@ -14,7 +14,7 @@ public:
 
 	HealthPoints getHealth();
 	AttackPower getAttackPower();
-	virtual std::string getName() {return "";}
+	virtual std::string getName();
 	virtual void takeDamage(AttackPower) {}
 };
 
@@ -75,7 +75,6 @@ public:
 Zombie createZombie(HealthPoints, AttackPower);
 Vampire createVampire(HealthPoints, AttackPower);
 Mummy createMummy(HealthPoints, AttackPower);
-GroupOfMonsters createGroupOfMonsters(std::vector<Monster>);
-GroupOfMonsters createGroupOfMonsters(std::vector<Monster> &, std::allocator<Monster>);
+GroupOfMonsters createGroupOfMonsters(std::vector<Monster, std::allocator<Monster> >);
 
 #endif

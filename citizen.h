@@ -27,22 +27,30 @@ public:
 
 
 class Adult : public Citizen {
-private:
+protected:
 	// override
 	bool isAgeGood(Age);
 public:
 	Adult(HealthPoints health, Age age) :
-		Citizen(health, age) {}
+		Citizen(health, age) {
+			if (!this->isAgeGood(age)) {
+				throw 42;
+			}
+		}
 };
 
 
 class Teenager : public Citizen {
-private:
+protected:
 	// override
 	bool isAgeGood(Age);
 public:
 	Teenager(HealthPoints health, Age age) :
-		Citizen(health, age) {}
+		Citizen(health, age) {
+			if (!this->isAgeGood(age)) {
+				throw 42;
+			}
+		}
 };
 
 
