@@ -29,7 +29,6 @@ class Zombie : public Monster {
 public:
 	Zombie(HealthPoints hp, AttackPower ap) : Monster(hp, ap) {}
 
-	void takeDamage(AttackPower);
 	std::string getName();
 };
 
@@ -37,7 +36,6 @@ class Vampire : public Monster {
 public:
 	Vampire(HealthPoints hp, AttackPower ap) : Monster(hp, ap) {}
 
-	void takeDamage(AttackPower);
 	std::string getName();
 };
 
@@ -45,9 +43,7 @@ class Mummy : public Monster {
 public:
 	Mummy(HealthPoints hp, AttackPower ap) : Monster(hp, ap) {}
 
-	void takeDamage(AttackPower);
 	std::string getName();
-
 };
 
 class GroupOfMonsters : public MonsterOrGroup {
