@@ -4,7 +4,7 @@
 #include "monster.h"
 #include "citizen.h"
 
-void attack(MonsterOrGroup, GroupOfCitizens);
+void attack(MonsterOrGroup&, GroupOfCitizens&);
 
 class Status {
 private:
@@ -19,6 +19,7 @@ public:
 	int getAliveCitizens();
 	HealthPoints getMonsterHealth();
 	HealthPoints getCitizensHealth();
+	void printStatus();
 
 	bool isFinished();
 	void printResult();
@@ -27,18 +28,16 @@ public:
 class SmallTown {
 private:
 
-	GroupOfCitizens citizens;
-	MonsterOrGroup evil;
-	Time tCur, t1; ;
+	GroupOfCitizens *citizens = NULL;
+	MonsterOrGroup *evil = NULL;
+	Time tCur = -1, tMax = -1; ;
 	bool goodTimeForAttack();
 
 public:
+	SmallTown();
 
 	class Builder;
-	friend class SmallTown::Builder;
-
-	SmallTown();
-	SmallTown(GroupOfCitizens, MonsterOrGroup, Time, Time);
+	friend class Builder;
 
 	void tick(Time);
 	Status getStatus();
@@ -47,7 +46,7 @@ public:
 
 class SmallTown::Builder {
 private:
-	SmallTown *curTown;
+	SmallTown * st = NULL;
 public:
 
 	Builder();

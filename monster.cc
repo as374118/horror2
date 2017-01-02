@@ -48,7 +48,7 @@ void GroupOfMonsters::removeDeadMonsters() {
 	HealthPoints newHealth = 0;
 	AttackPower newAttackPower = 0;
 
-	for (Monster m : this->monsters) {
+	for (Monster &m : this->monsters) {
 		if (m.getHealth() > 0) {
 			newAlive++;
 			newHealth += m.getHealth();
@@ -58,14 +58,16 @@ void GroupOfMonsters::removeDeadMonsters() {
 	}
 
 	this->alive = newAlive;
+	this->monsters = newMonsters;
 	MonsterOrGroup::health = newHealth;
 	MonsterOrGroup::attackPower = newAttackPower;
+
 }
 
 HealthPoints GroupOfMonsters::countHealth(std::vector<Monster> monsters) {
 	HealthPoints res = 0;
 
-	for (Monster m : monsters) {
+	for (Monster &m : monsters) {
 		res += m.getHealth();
 	}
 
@@ -75,7 +77,7 @@ HealthPoints GroupOfMonsters::countHealth(std::vector<Monster> monsters) {
 AttackPower GroupOfMonsters::countAttackPower(std::vector<Monster> monsters) {
 	AttackPower res = 0;
 
-	for (Monster m : monsters) {
+	for (Monster &m : monsters) {
 		res += m.getAttackPower();
 	}
 
@@ -86,7 +88,7 @@ void GroupOfMonsters::takeDamage(AttackPower damage) {
 	HealthPoints newHealth = 0;
 	int newAlive = 0;
 
-	for (Monster m : this->monsters) {
+	for (Monster &m : this->monsters) {
 		m.takeDamage(damage);
 		if (m.getHealth() > 0) {
 			newHealth += m.getHealth();

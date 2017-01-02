@@ -2,13 +2,14 @@
 #define HELPER_H
 
 #include <cstdio>
+#include <iostream>
 #include <cstdlib>
 #include <cmath>
 #include <vector>
 #include <initializer_list>
 #include <string>
 
-typedef unsigned long long BigInt;
+typedef long long BigInt;
 typedef BigInt HealthPoints;
 typedef BigInt Age;
 typedef BigInt AttackPower;

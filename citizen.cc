@@ -9,8 +9,7 @@ bool Citizen::isAgeGood(Age age) {
 
 Citizen::Citizen(HealthPoints health, Age age) {
 	if (!isAgeGood(age)) {
-		printf("%lld\n", age);
-		puts("ASS2");
+		std::cerr << "Bad age for citizen\n";
 		throw 42;
 	}
 	this->health = health;
@@ -29,6 +28,13 @@ void Citizen::takeDamage(AttackPower damage) {
 	this->health = max(0, this->health - damage);
 }
 
+std::string Citizen::toString() {
+	std::string res("");
+	res += " health: " + std::to_string(this->health);
+	res += " age: " + std::to_string(this->age);
+	return res;
+}
+
 Attackable::Attackable(AttackPower attackPower) {
 	this->attackPower = attackPower;
 }
@@ -37,12 +43,37 @@ AttackPower Attackable::getAttackPower() {
 	return this->attackPower;
 }
 
+std::string Attackable::toString() {
+	std::string res("");
+	res += " attack: " + std::to_string(this->attackPower);
+	return res;
+}
+
 bool Teenager::isAgeGood(Age age) {
 	return (age <= MAX_AGE_TEENAGER && age >= MIN_AGE_TEENAGER);
 }
 
+std::string Teenager::toString() {
+	std::string res("Citizen ");
+	res += Citizen::toString();
+	return res;
+}
+
 bool Adult::isAgeGood(Age age) {
 	return (age <= MAX_AGE_ADULT && age >= MIN_AGE_ADULT);	
+}
+
+std::string Adult::toString() {
+	std::string res("Adult ");
+	res += Citizen::toString();
+	return res;
+}
+
+std::string Sheriff::toString() {
+	std::string res("Sheriff ");
+	res += Citizen::toString();
+	res += Attackable::toString();
+	return res;
 }
 
 GroupOfCitizens::GroupOfCitizens() {
@@ -127,14 +158,14 @@ AttackPower GroupOfCitizens::getAttackPower() {
 void GroupOfCitizens::takeDamage(AttackPower damage) {
 	int alive = 0;
 
-	for (Citizen c : this->casualCitizens) {
+	for (Citizen &c : this->casualCitizens) {
 		c.takeDamage(damage);
 		if (c.getHealth() > 0) {
 			++alive;
 		}
 	}
 	
-	for (Sheriff s : this->sheriffs) {
+	for (Sheriff &s : this->sheriffs) {
 		s.takeDamage(damage);
 		if (s.getHealth() > 0) {
 			++alive;
@@ -149,6 +180,20 @@ void GroupOfCitizens::takeDamage(AttackPower damage) {
 		this->attackPower = this->countAttackPower();
 	}
 
+}
+
+void GroupOfCitizens::printCitizens() {
+	puts("//////////GROUP OF CITIZENS//////////////");
+	puts("Casual citizens:");
+	for (Citizen c : this->casualCitizens) {
+		std::cout << c.toString() << std::endl;
+	}
+
+	puts("Sheriffs:");
+	for (Sheriff s : this->sheriffs) {
+		std::cout << s.toString() << std::endl;
+	}
+	puts("//////////////////////////////////////////");
 }
 
 Sheriff createSheriff(HealthPoints health, Age age, AttackPower ap) {

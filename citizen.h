@@ -13,6 +13,7 @@ public:
 
 	HealthPoints getHealth();
 	Age getAge();
+	virtual std::string toString();
 	void takeDamage(AttackPower);
 };
 
@@ -23,6 +24,7 @@ public:
 	Attackable(AttackPower);
 
 	AttackPower getAttackPower();
+	std::string toString();
 };
 
 
@@ -34,9 +36,12 @@ public:
 	Adult(HealthPoints health, Age age) :
 		Citizen(health, age) {
 			if (!this->isAgeGood(age)) {
+				std::cerr << "Bad age for Adult\n";
 				throw 42;
 			}
 		}
+
+	virtual std::string toString();
 };
 
 
@@ -48,9 +53,12 @@ public:
 	Teenager(HealthPoints health, Age age) :
 		Citizen(health, age) {
 			if (!this->isAgeGood(age)) {
+				std::cerr << "Bad age for teenager\n";
 				throw 42;
 			}
 		}
+
+	std::string toString();
 };
 
 
@@ -58,6 +66,8 @@ class Sheriff : public Adult, public Attackable {
 public:
 	Sheriff(HealthPoints health, Age age, AttackPower attackPower) :
 		Adult(health, age), Attackable(attackPower) {}
+
+	std::string toString();
 };
 
 
@@ -82,6 +92,7 @@ public:
 	int getAlive();
 	HealthPoints getHealth();
 	AttackPower getAttackPower();
+	void printCitizens();
 
 	void takeDamage(AttackPower);
 };

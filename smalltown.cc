@@ -59,19 +59,26 @@ void Status::printResult() {
 	}
 }
 
-SmallTown::SmallTown(GroupOfCitizens citizens,
-	MonsterOrGroup evil, Time t0, Time t1) {
-	this->citizens = citizens;
-	this->evil = evil;
-	this->tCur = t0;
-	this->t1 = t1;
+void Status::printStatus() {
+	std::cout << "MonsterName: " << this->monsterName;
+	std::cout << " citizensAlive: " << this->aliveCitizens;
+	std::cout << " citizensHealth: " << this->citizenHealth;
+	std::cout << " monsterHealth: " << this->monsterHealth;
+	std::cout << std::endl; 
+}
+
+SmallTown::SmallTown() {
+	this->citizens = new GroupOfCitizens();
+	this->tMax = -1;
+	this->tCur = -1;
+	this->evil = NULL;
 }
 
 Status SmallTown::getStatus() {
-	std::string monsterName = this->evil.getName();
-	int aliveCitizens = this->citizens.getAlive();
-	HealthPoints monsterHealth = this->evil.getHealth();
-	HealthPoints citizenHealth = this->citizens.getHealth();
+	std::string monsterName = "";//this->evil->getName();
+	int aliveCitizens = this->citizens->getAlive();
+	HealthPoints monsterHealth = this->evil->getHealth();
+	HealthPoints citizenHealth = this->citizens->getHealth();
 
 	Status res(monsterName, aliveCitizens, monsterHealth, citizenHealth);
 
@@ -79,8 +86,8 @@ Status SmallTown::getStatus() {
 }
 
 void SmallTown::attack() {
-	MonsterOrGroup * evil = &(this->evil);
-	GroupOfCitizens * citizens = &(this->citizens);
+	MonsterOrGroup * evil = this->evil;
+	GroupOfCitizens * citizens = this->citizens;
 	::attack(evil, citizens);
 }
 
@@ -102,34 +109,55 @@ void SmallTown::tick(Time t) {
 		}
 	}
 	tCur += t;
-	tCur %= this->t1; 
+	tCur %= (this->tMax + 1); 
 }
-
 
 SmallTown::Builder::Builder() {
-	curTown->citizens = GroupOfCitizens();
+	this->st = new SmallTown();
 }
 
-SmallTown::Builder SmallTown::Builder::monster(MonsterOrGroup evil) {
-	curTown->evil = evil;
-	return *this;
-}
-
-SmallTown::Builder SmallTown::Builder::startTime(Time t0) {
-	curTown->tCur = t0;
-	return *this;
-}
-
-SmallTown::Builder SmallTown::Builder::maxTime(Time t1) {
-	curTown->t1 = t1;
+SmallTown::Builder SmallTown::Builder::monster(MonsterOrGroup m) {
+	if (this->st->evil != NULL) {
+		std::cerr << "Monster already set\n";
+		throw  42;
+	}
+	this->st->evil = &m;
 	return *this;
 }
 
 SmallTown::Builder SmallTown::Builder::citizen(Citizen c) {
-	curTown->citizens.add(c);
+	this->st->citizens->add(c);
+	return *this;
+}
+
+SmallTown::Builder SmallTown::Builder::startTime(Time t0) {
+	if (this->st->tCur != -1) {
+		std::cerr << "Start time already set\n";
+		throw 42;
+	}
+	this->st->tCur = t0;
+	return *this;
+}
+
+SmallTown::Builder SmallTown::Builder::maxTime(Time tMax) {
+	if (this->st->tMax != -1) {
+		std::cerr << this->st->tMax << std::endl;
+		std::cerr << "Max time already set\n";
+		throw 42;
+	}
+	this->st->tMax = tMax;
 	return *this;
 }
 
 SmallTown SmallTown::Builder::build() {
-	return *(curTown);
+	bool ready = true;
+	ready &= this->st->tCur >= 0;
+	ready &= this->st->tMax >= 0;
+	ready &= this->st->citizens != NULL;
+	ready &= this->st->evil != NULL;
+	if (!ready) {
+		std::cerr << "Cannot build\n";
+		throw 42;
+	}
+	return *(this->st);
 }
