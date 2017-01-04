@@ -1,13 +1,18 @@
 #include "smalltown.h"
 
+// implementing attack function
+// parameters: pointer to evil and pointer to GroupOfCitizens
+// execute the attack
 void attack(MonsterOrGroup * monsters, GroupOfCitizens * citizens) {
 	AttackPower monsterAttack = monsters->getAttackPower();
 	AttackPower citizensAttack = citizens->getAttackPower();
-
+	// std::cout << "monsterAp: " << monsterAttack
+	// std::cout << " citizenAp: " << citizensAttack << std::endl; 
 	monsters->takeDamage(citizensAttack);
 	citizens->takeDamage(monsterAttack);
 }
 
+// Status implementation
 Status::Status(std::string monsterName, int aliveCitizens,
 		HealthPoints monsterHealth, HealthPoints citizenHealth) {
 	this->monsterName = monsterName;
@@ -16,8 +21,10 @@ Status::Status(std::string monsterName, int aliveCitizens,
 	this->citizenHealth = citizenHealth;
 }
 
+// getters for Status
 std::string Status::getMonsterName() {
-	return this->monsterName;
+	std::string res = std::string(this->monsterName);
+	return res;
 }
 
 int Status::getAliveCitizens() {
@@ -32,6 +39,7 @@ HealthPoints Status::getCitizensHealth() {
 	return this->citizenHealth;
 }
 
+// Status functions for checking the result
 bool Status::isFinished() {
 	return this->monsterHealth == 0 || this->citizenHealth == 0;
 }
@@ -59,6 +67,7 @@ void Status::printResult() {
 	}
 }
 
+// help  Status function for printing Status to stdout
 void Status::printStatus() {
 	std::cout << "MonsterName: " << this->monsterName;
 	std::cout << " citizensAlive: " << this->aliveCitizens;
@@ -67,15 +76,9 @@ void Status::printStatus() {
 	std::cout << std::endl; 
 }
 
-SmallTown::SmallTown() {
-	this->citizens = new GroupOfCitizens();
-	this->tMax = -1;
-	this->tCur = -1;
-	this->evil = NULL;
-}
-
+// SmallTown implementation
 Status SmallTown::getStatus() {
-	std::string monsterName = "";//this->evil->getName();
+	std::string monsterName(this->evil->getName());
 	int aliveCitizens = this->citizens->getAlive();
 	HealthPoints monsterHealth = this->evil->getHealth();
 	HealthPoints citizenHealth = this->citizens->getHealth();
@@ -86,9 +89,7 @@ Status SmallTown::getStatus() {
 }
 
 void SmallTown::attack() {
-	MonsterOrGroup * evil = this->evil;
-	GroupOfCitizens * citizens = this->citizens;
-	::attack(evil, citizens);
+	::attack(this->evil, this->citizens);
 }
 
 bool SmallTown::goodTimeForAttack() {
@@ -103,30 +104,41 @@ bool SmallTown::goodTimeForAttack() {
 void SmallTown::tick(Time t) {
 
 	if (this->goodTimeForAttack()) {
-		attack();
+		this->attack();
 		if (this->getStatus().isFinished()) {
 			this->getStatus().printResult();
 		}
 	}
-	tCur += t;
-	tCur %= (this->tMax + 1); 
+
+	// TODO
+ 	// to decide what variant should be used
+	// if (t > 0)  {
+	// 	this->tCur += 1;
+	// 	this->tCur %= (this->tMax + 1);
+	// 	this->tick(t - 1);
+	// }
+
+	this->tCur += t;
+	this->tCur %= (this->tMax + 1);
 }
 
+// Builder implementation
 SmallTown::Builder::Builder() {
-	this->st = new SmallTown();
+	
 }
 
-SmallTown::Builder SmallTown::Builder::monster(MonsterOrGroup m) {
+SmallTown::Builder SmallTown::Builder::citizen(Citizen * c) {
+	this->st->citizens->add(c);
+	return *this;
+}
+
+SmallTown::Builder SmallTown::Builder::monster(MonsterOrGroup * m) {
 	if (this->st->evil != NULL) {
 		std::cerr << "Monster already set\n";
 		throw  42;
 	}
-	this->st->evil = &m;
-	return *this;
-}
 
-SmallTown::Builder SmallTown::Builder::citizen(Citizen c) {
-	this->st->citizens->add(c);
+	this->st->evil = m;
 	return *this;
 }
 

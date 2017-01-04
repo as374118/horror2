@@ -1,18 +1,9 @@
 #include "monster.h"
 
-// methods of MonsterOrGroup class
-MonsterOrGroup::MonsterOrGroup() {
-	this->health = 0;
-	this->attackPower = 0;
-}
-
+// implementing abstract class MonsterOrGroup
 MonsterOrGroup::MonsterOrGroup(HealthPoints health, AttackPower attackPower) {
 	this->health = health;
 	this->attackPower = attackPower;
-}
-
-std::string MonsterOrGroup::getName() {
-	return std::string("Unnamed");
 }
 
 HealthPoints MonsterOrGroup::getHealth() {
@@ -23,36 +14,40 @@ AttackPower MonsterOrGroup::getAttackPower() {
 	return this->attackPower;
 }
 
+// implementing abstract class Monster
 void Monster::takeDamage(AttackPower damage) {
 	MonsterOrGroup::health = max(0, MonsterOrGroup::health - damage);
 }
 
+// implementing Vampire
 std::string Vampire::getName() {
 	return "Vampire";
 }
 
+
+// implementing Zombie
 std::string Zombie::getName() {
 	return "Zombie";
 }
 
+// implementing Mummy
 std::string Mummy::getName() {
 	return "Mummy";
 }
 
-
-// methods of group of monster class
-
+// implementing GroupOfMonsters
 void GroupOfMonsters::removeDeadMonsters() {
-	std::vector<Monster> newMonsters;
+	std::vector<Monster *> newMonsters;
 	int newAlive = 0;
 	HealthPoints newHealth = 0;
 	AttackPower newAttackPower = 0;
 
-	for (Monster &m : this->monsters) {
-		if (m.getHealth() > 0) {
+	for (Monster * m : this->monsters) {
+		checkPointer(m, "Null monster in removeDeadMonsters()");
+		if (m->getHealth() > 0) {
 			newAlive++;
-			newHealth += m.getHealth();
-			newAttackPower += m.getAttackPower();
+			newHealth += m->getHealth();
+			newAttackPower += m->getAttackPower();
 			newMonsters.push_back(m);
 		}
 	}
@@ -64,21 +59,23 @@ void GroupOfMonsters::removeDeadMonsters() {
 
 }
 
-HealthPoints GroupOfMonsters::countHealth(std::vector<Monster> monsters) {
+HealthPoints GroupOfMonsters::countHealth(std::vector<Monster *> monsters) {
 	HealthPoints res = 0;
 
-	for (Monster &m : monsters) {
-		res += m.getHealth();
+	for (Monster * m : monsters) {
+		checkPointer(m, "Null monster in countHealth()");
+		res += m->getHealth();
 	}
 
 	return res;
 }
 
-AttackPower GroupOfMonsters::countAttackPower(std::vector<Monster> monsters) {
+AttackPower GroupOfMonsters::countAttackPower(std::vector<Monster * > monsters) {
 	AttackPower res = 0;
 
-	for (Monster &m : monsters) {
-		res += m.getAttackPower();
+	for (Monster * m : monsters) {
+		checkPointer(m, "Null monster in countAttackPower()");
+		res += m->getAttackPower();
 	}
 
 	return res;
@@ -88,10 +85,10 @@ void GroupOfMonsters::takeDamage(AttackPower damage) {
 	HealthPoints newHealth = 0;
 	int newAlive = 0;
 
-	for (Monster &m : this->monsters) {
-		m.takeDamage(damage);
-		if (m.getHealth() > 0) {
-			newHealth += m.getHealth();
+	for (Monster * m : this->monsters) {
+		m->takeDamage(damage);
+		if (m->getHealth() > 0) {
+			newHealth += m->getHealth();
 			newAlive++;
 		}
 	}
@@ -105,31 +102,34 @@ void GroupOfMonsters::takeDamage(AttackPower damage) {
 	}
 }
 
+// getters
 int GroupOfMonsters::getAlive() {
 	return this->alive;
 }
 
 std::string GroupOfMonsters::getName() {
-	return "GroupOfMonsters";
+	return std::string("GroupOfMonsters");
 }
 
-Zombie createZombie(HealthPoints hp, AttackPower ap) {
-	return Zombie(hp, ap);
+
+// factory functions
+Zombie * createZombie(HealthPoints hp, AttackPower ap) {
+	return new Zombie(hp, ap);
 }
 
-Vampire createVampire(HealthPoints hp, AttackPower ap) {
-	return Vampire(hp, ap);
+Vampire * createVampire(HealthPoints hp, AttackPower ap) {
+	return new Vampire(hp, ap);
 }
 
-Mummy createMummy(HealthPoints hp, AttackPower ap) {
-	return Mummy(hp, ap);
+Mummy * createMummy(HealthPoints hp, AttackPower ap) {
+	return new Mummy(hp, ap);
 }
 
-// TODO
-GroupOfMonsters createGroupOfMonsters(std::vector<Monster> &monsters, std::allocator<Monster>) {
-	return GroupOfMonsters(monsters);
-}
+// GroupOfMonsters * createGroupOfMonsters(std::vector<Monster *> monsters) {
+// 	return new GroupOfMonsters(monsters);
+// }
 
-GroupOfMonsters createGroupOfMonsters(std::vector<Monster, std::allocator<Monster> > monsters) {
-	return GroupOfMonsters(monsters);
+GroupOfMonsters * createGroupOfMonsters(
+	std::vector<Monster *, std::allocator<Monster *>> monsters) {
+	return new GroupOfMonsters(monsters);
 }

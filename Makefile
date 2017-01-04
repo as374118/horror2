@@ -1,7 +1,8 @@
-COMPILER = -std=c++11
+COMPILER = -std=c++14
 
-all: helper.o monster.o citizen.o smalltown.o helper.o horror_example.o
-	g++ $(COMPILER) monster.o citizen.o smalltown.o horror_example.o helper.o -o horror_example
+all: helper.o monster.o citizen.o smalltown.o helper.o test.o
+	g++ $(COMPILER) monster.o citizen.o smalltown.o test.o helper.o -o test
+	./test
 
 citizen.o: citizen.cc
 	g++ $(COMPILER) -c citizen.cc
@@ -12,8 +13,8 @@ monster.o: monster.cc
 smalltown.o: smalltown.h smalltown.cc
 	g++ $(COMPILER) monster.o citizen.o -c smalltown.cc
 
-horror_example.o: horror_example.cc
-	g++ $(COMPILER) -c horror_example.cc
+test.o: test.cc
+	g++ $(COMPILER) -c test.cc
 
 helper.o: helper.cc helper.h
 	g++ $(COMPILER) -c helper.cc

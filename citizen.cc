@@ -3,15 +3,9 @@
 const BigInt MIN_AGE_ADULT = 18, MAX_AGE_ADULT = 100;
 const BigInt MIN_AGE_TEENAGER = 11, MAX_AGE_TEENAGER = 18;
 
-bool Citizen::isAgeGood(Age age) {
-	return (age >= MIN_AGE_TEENAGER && age <= MAX_AGE_ADULT);
-}
 
+// implementation of citizen
 Citizen::Citizen(HealthPoints health, Age age) {
-	if (!isAgeGood(age)) {
-		std::cerr << "Bad age for citizen\n";
-		throw 42;
-	}
 	this->health = health;
 	this->age = age;
 }
@@ -35,6 +29,7 @@ std::string Citizen::toString() {
 	return res;
 }
 
+// implementation of attackable
 Attackable::Attackable(AttackPower attackPower) {
 	this->attackPower = attackPower;
 }
@@ -49,6 +44,8 @@ std::string Attackable::toString() {
 	return res;
 }
 
+
+// implementation of teenager
 bool Teenager::isAgeGood(Age age) {
 	return (age <= MAX_AGE_TEENAGER && age >= MIN_AGE_TEENAGER);
 }
@@ -59,6 +56,7 @@ std::string Teenager::toString() {
 	return res;
 }
 
+// implementation of adult
 bool Adult::isAgeGood(Age age) {
 	return (age <= MAX_AGE_ADULT && age >= MIN_AGE_ADULT);	
 }
@@ -76,41 +74,50 @@ std::string Sheriff::toString() {
 	return res;
 }
 
+// implementation of group of citizens
 GroupOfCitizens::GroupOfCitizens() {
 	this->alive = 0;
 	this->health = 0;
 	this->attackPower = 0;
+	this->citizens = std::vector<Citizen *>();
+}
+
+void GroupOfCitizens::add(Citizen * c) {
+	checkPointer(c, "Null citizen in GroupOfCitizens::add()");
+	if (c->getHealth() > 0) {
+		this->citizens.push_back(c);
+		this->health += c->getHealth();
+		++this->alive;
+
+		// if citizen is a sherrif
+		if (Sheriff * sh = dynamic_cast<Sheriff *>(c)) {
+			this->attackPower += sh->getAttackPower();
+		}
+	} else {
+		std::cerr << "Trying to add dead citizen to group";
+		throw ERR_CODE;
+	}
 }
 
 void GroupOfCitizens::removeDead() {
-	std::vector<Citizen> newCitizens;
-	std::vector<Sheriff> newSheriffs;
+	std::vector<Citizen *> newCitizens;
 
-	for (Citizen c : this->casualCitizens) {
-		if (c.getHealth() > 0) {
+	for (Citizen * c : this->citizens) {
+		checkPointer(c, "Null citizen in removeDead()");
+		if (c->getHealth() > 0) {
 			newCitizens.push_back(c);
 		}
 	}
 
-	for (Sheriff s : this->sheriffs) {
-		if (s.getHealth() > 0) {
-			newSheriffs.push_back(s);
-		}
-	}
-
-	this->sheriffs = newSheriffs;
-	this->casualCitizens = newCitizens;
+	this->citizens = newCitizens;
 }
 
 HealthPoints GroupOfCitizens::countHealth() {
 	HealthPoints res = 0;
 
-	for (Citizen c : this->casualCitizens) {
-		res += c.getHealth();
-	}
-
-	for (Sheriff s : this->sheriffs) {
-		res += s.getHealth();
+	for (Citizen * c : this->citizens) {
+		checkPointer(c, "Null citizen in countHealth()");
+		res += c->getHealth();
 	}
 
 	return res;
@@ -119,30 +126,40 @@ HealthPoints GroupOfCitizens::countHealth() {
 AttackPower GroupOfCitizens::countAttackPower() {
 	AttackPower res = 0;
 	
-	for (Sheriff s : this->sheriffs) {
-		res += s.getAttackPower();
+	for (Citizen * c : this->citizens) {
+		checkPointer(c, "Null citizen in countAttackPower()");
+		if (Sheriff * s = dynamic_cast<Sheriff *>(c))  {
+			res += s->getAttackPower();
+		}
 	}
 
 	return res;
 }
 
-void GroupOfCitizens::add(Citizen c) {
-	if (c.getHealth() > 0) {
-		this->casualCitizens.push_back(c);
-		this->health += c.getHealth();
-		++this->alive;
+void GroupOfCitizens::takeDamage(AttackPower damage) {
+	int alive = 0;
+	HealthPoints newHealth = 0;
+
+	for (Citizen * c : this->citizens) {
+		checkPointer(c, "Null citizen in takeDamage()");
+		c->takeDamage(damage);
+		if (c->getHealth() > 0) {
+			++alive;
+			newHealth += c->getHealth();
+		}
+	}
+
+	if (this->alive != alive) {
+		this->removeDead();
+		this->alive = this->citizens.size();
+		this->health = this->countHealth();
+		this->attackPower = this->countAttackPower();
+	} else {
+		this->health = newHealth;
 	}
 }
 
-void GroupOfCitizens::add(Sheriff s) {
-	if (s.getHealth() > 0) {
-		this->sheriffs.push_back(s);
-		this->health += s.getHealth();
-		this->attackPower += s.getAttackPower();
-		++this->alive;
-	}
-}
-
+// getters
 int GroupOfCitizens::getAlive() {
 	return this->alive;
 }
@@ -155,55 +172,26 @@ AttackPower GroupOfCitizens::getAttackPower() {
 	return this->attackPower;
 }
 
-void GroupOfCitizens::takeDamage(AttackPower damage) {
-	int alive = 0;
-
-	for (Citizen &c : this->casualCitizens) {
-		c.takeDamage(damage);
-		if (c.getHealth() > 0) {
-			++alive;
-		}
-	}
-	
-	for (Sheriff &s : this->sheriffs) {
-		s.takeDamage(damage);
-		if (s.getHealth() > 0) {
-			++alive;
-		}
-	}
-
-	if (this->alive != alive) {
-		this->removeDead();
-		this->alive = this->casualCitizens.size();
-		this->alive += this->sheriffs.size();
-		this->health = this->countHealth();
-		this->attackPower = this->countAttackPower();
-	}
-
-}
-
+// help function which prints group of citizens
 void GroupOfCitizens::printCitizens() {
 	puts("//////////GROUP OF CITIZENS//////////////");
-	puts("Casual citizens:");
-	for (Citizen c : this->casualCitizens) {
-		std::cout << c.toString() << std::endl;
-	}
-
-	puts("Sheriffs:");
-	for (Sheriff s : this->sheriffs) {
-		std::cout << s.toString() << std::endl;
+	puts("Citizens:");
+	for (Citizen * c : this->citizens) {
+		checkPointer(c, "Null citizen in printCitizens()");
+		std::cout << c->toString() << std::endl;
 	}
 	puts("//////////////////////////////////////////");
 }
 
-Sheriff createSheriff(HealthPoints health, Age age, AttackPower ap) {
-	return Sheriff(health, age, ap);
+// factory functions
+Sheriff * createSheriff(HealthPoints hp, Age age, AttackPower ap) {
+	return new Sheriff(hp, age, ap);
 }
 
-Adult createAdult(HealthPoints health, Age age) {
-	return Adult(health, age);
+Adult * createAdult(HealthPoints hp, Age age) {
+	return new Adult(hp, age);
 }
 
-Teenager createTeenager(HealthPoints health, Age age) {
-	return Teenager(health, age);
+Teenager * createTeenager(HealthPoints hp, Age age) {
+	return new Teenager(hp, age);
 }

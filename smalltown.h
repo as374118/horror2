@@ -1,10 +1,12 @@
 #ifndef SMALLTOWN_H
 #define SMALLTOWN_H
 
-#include "monster.h"
 #include "citizen.h"
+#include "monster.h"
 
-void attack(MonsterOrGroup&, GroupOfCitizens&);
+void attack(MonsterOrGroup *, GroupOfCitizens *);
+
+void attack(MonsterOrGroup *, GroupOfCitizens *);
 
 class Status {
 private:
@@ -28,14 +30,15 @@ public:
 class SmallTown {
 private:
 
-	GroupOfCitizens *citizens = NULL;
-	MonsterOrGroup *evil = NULL;
+	GroupOfCitizens * citizens = new GroupOfCitizens();
+	MonsterOrGroup * evil = NULL;
 	Time tCur = -1, tMax = -1; ;
 	bool goodTimeForAttack();
 
 public:
-	SmallTown();
+	SmallTown() {}
 
+	// class for helping to build SmallTown
 	class Builder;
 	friend class Builder;
 
@@ -46,18 +49,17 @@ public:
 
 class SmallTown::Builder {
 private:
-	SmallTown * st = NULL;
+	SmallTown * st = new SmallTown();
 public:
 
 	Builder();
 
-	Builder monster(MonsterOrGroup);
+	Builder monster(MonsterOrGroup *);
 	Builder startTime(Time);
 	Builder maxTime(Time);
-	Builder citizen(Citizen);
+	Builder citizen(Citizen *);
 
 	SmallTown build();
 };
-
 
 #endif

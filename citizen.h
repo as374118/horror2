@@ -5,7 +5,7 @@
 
 class Citizen {
 protected:
-	virtual bool isAgeGood(Age);
+	virtual bool isAgeGood(Age) = 0;
 	HealthPoints health;
 	Age age;
 public:
@@ -13,7 +13,7 @@ public:
 
 	HealthPoints getHealth();
 	Age getAge();
-	virtual std::string toString();
+	virtual std::string toString() = 0;
 	void takeDamage(AttackPower);
 };
 
@@ -21,12 +21,11 @@ class Attackable {
 protected:
 	AttackPower attackPower;
 public:
-	Attackable(AttackPower);
+	Attackable(AttackPower ap);
 
 	AttackPower getAttackPower();
 	std::string toString();
 };
-
 
 class Adult : public Citizen {
 protected:
@@ -37,13 +36,13 @@ public:
 		Citizen(health, age) {
 			if (!this->isAgeGood(age)) {
 				std::cerr << "Bad age for Adult\n";
-				throw 42;
+				throw ERR_CODE;
 			}
 		}
 
+	// override
 	virtual std::string toString();
 };
-
 
 class Teenager : public Citizen {
 protected:
@@ -54,30 +53,29 @@ public:
 		Citizen(health, age) {
 			if (!this->isAgeGood(age)) {
 				std::cerr << "Bad age for teenager\n";
-				throw 42;
+				throw ERR_CODE;
 			}
 		}
 
+	// override
 	std::string toString();
 };
-
 
 class Sheriff : public Adult, public Attackable {
 public:
 	Sheriff(HealthPoints health, Age age, AttackPower attackPower) :
 		Adult(health, age), Attackable(attackPower) {}
 
+	// Override
 	std::string toString();
 };
 
-
 class GroupOfCitizens {
 private:
-	std::vector<Citizen> casualCitizens;
-	std::vector<Sheriff> sheriffs;
 	HealthPoints health;
 	int alive;
 	AttackPower attackPower;
+	std::vector<Citizen *> citizens;
 
 	void removeDead();
 	HealthPoints countHealth();
@@ -85,9 +83,7 @@ private:
 public:
 	GroupOfCitizens();
 	
-
-	void add(Citizen);
-	void add(Sheriff);
+	void add(Citizen *);
 
 	int getAlive();
 	HealthPoints getHealth();
@@ -97,9 +93,10 @@ public:
 	void takeDamage(AttackPower);
 };
 
+
 // factory functions
-Sheriff createSheriff(HealthPoints, Age, AttackPower);
-Adult createAdult(HealthPoints, Age);
-Teenager createTeenager(HealthPoints, Age);
+Sheriff * createSheriff(HealthPoints, Age, AttackPower);
+Adult * createAdult(HealthPoints, Age);
+Teenager * createTeenager(HealthPoints, Age);
 
 #endif

@@ -1,9 +1,8 @@
 #ifndef HELPER_H
 #define HELPER_H
 
-#include <cstdio>
-#include <iostream>
 #include <cstdlib>
+#include <iostream>
 #include <cmath>
 #include <vector>
 #include <initializer_list>
@@ -15,7 +14,9 @@ typedef BigInt Age;
 typedef BigInt AttackPower;
 typedef BigInt Time;
 
+const int ERR_CODE = 42;
 
 BigInt max(BigInt, BigInt);
+void checkPointer(void *, std::string);
 
 #endif
